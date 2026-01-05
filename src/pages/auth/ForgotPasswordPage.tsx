@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
+import { useAppDispatch } from '@/store/hooks';
+import { forgotPassword } from '@/store/slices/authSlice';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +18,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
-  const { forgotPassword } = useAuthStore();
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -30,15 +31,14 @@ export default function ForgotPasswordPage() {
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
-    setIsLoading(true);
-    const result = await forgotPassword(data.email);
-    setIsLoading(false);
-
-    if (result.success) {
+    try {
+      await dispatch(forgotPassword(data.email)).unwrap();
       setIsSubmitted(true);
       toast.success('Password reset instructions sent!');
-    } else {
-      toast.error(result.error || 'Failed to send reset email');
+    } catch (error) {
+      toast.error(error as string || 'Failed to send reset email');
+    } finally {
+      setIsLoading(false);
     }
   };
 

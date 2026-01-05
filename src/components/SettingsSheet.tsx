@@ -1,11 +1,17 @@
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  useThemeStore,
+  setMode,
+  setColor,
+  setContainer,
+  setSidebar,
+  setBorderRadius,
+  resetToDefaults,
   ThemeMode,
   ThemeColor,
   ContainerType,
   SidebarType,
   BorderRadius,
-} from '@/stores/themeStore';
+} from '@/store/slices/themeSlice';
 import { cn } from '@/lib/utils';
 import {
   Sun,
@@ -50,22 +56,11 @@ const borderRadiusOptions: { value: BorderRadius; label: string }[] = [
 ];
 
 export function SettingsSheet() {
-  const {
-    mode,
-    color,
-    container,
-    sidebar,
-    borderRadius,
-    setMode,
-    setColor,
-    setContainer,
-    setSidebar,
-    setBorderRadius,
-    resetToDefaults,
-  } = useThemeStore();
+  const dispatch = useAppDispatch();
+  const { mode, color, container, sidebar, borderRadius } = useAppSelector((state) => state.theme);
 
   const handleReset = () => {
-    resetToDefaults();
+    dispatch(resetToDefaults());
     toast.success('Settings reset to defaults');
   };
 
@@ -101,19 +96,19 @@ export function SettingsSheet() {
                   icon={Sun}
                   label="Light"
                   isActive={mode === 'light'}
-                  onClick={() => setMode('light')}
+                  onClick={() => dispatch(setMode('light'))}
                 />
                 <ThemeModeButton
                   icon={Moon}
                   label="Dark"
                   isActive={mode === 'dark'}
-                  onClick={() => setMode('dark')}
+                  onClick={() => dispatch(setMode('dark'))}
                 />
                 <ThemeModeButton
                   icon={Monitor}
                   label="System"
                   isActive={mode === 'system'}
-                  onClick={() => setMode('system')}
+                  onClick={() => dispatch(setMode('system'))}
                 />
               </div>
             </div>
@@ -127,7 +122,7 @@ export function SettingsSheet() {
                 {themeColors.map((themeColor) => (
                   <button
                     key={themeColor.value}
-                    onClick={() => setColor(themeColor.value)}
+                    onClick={() => dispatch(setColor(themeColor.value))}
                     className={cn(
                       'group relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200',
                       themeColor.color,
@@ -155,13 +150,13 @@ export function SettingsSheet() {
                   icon={Maximize}
                   label="Full Width"
                   isActive={container === 'full'}
-                  onClick={() => setContainer('full')}
+                  onClick={() => dispatch(setContainer('full'))}
                 />
                 <OptionButton
                   icon={Square}
                   label="Boxed"
                   isActive={container === 'boxed'}
-                  onClick={() => setContainer('boxed')}
+                  onClick={() => dispatch(setContainer('boxed'))}
                 />
               </div>
             </div>
@@ -174,7 +169,7 @@ export function SettingsSheet() {
               <div className="grid grid-cols-2 gap-3">
                 {/* Full Sidebar */}
                 <button
-                  onClick={() => setSidebar('full')}
+                  onClick={() => dispatch(setSidebar('full'))}
                   className={cn(
                     'flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all duration-200',
                     sidebar === 'full'
@@ -209,7 +204,7 @@ export function SettingsSheet() {
 
                 {/* Mini Sidebar */}
                 <button
-                  onClick={() => setSidebar('mini')}
+                  onClick={() => dispatch(setSidebar('mini'))}
                   className={cn(
                     'flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all duration-200',
                     sidebar === 'mini'
@@ -252,7 +247,7 @@ export function SettingsSheet() {
                 {borderRadiusOptions.map((option) => (
                   <button
                     key={option.value}
-                    onClick={() => setBorderRadius(option.value)}
+                    onClick={() => dispatch(setBorderRadius(option.value))}
                     className={cn(
                       'flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-all duration-200',
                       borderRadius === option.value

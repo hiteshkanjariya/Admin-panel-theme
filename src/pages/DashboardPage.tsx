@@ -1,5 +1,5 @@
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { useAuthStore } from '@/stores/authStore';
+import { useAppSelector } from '@/store/hooks';
 import {
   Users,
   TrendingUp,
@@ -126,7 +126,7 @@ const activityTypeColors: Record<string, string> = {
 };
 
 export default function DashboardPage() {
-  const { user } = useAuthStore();
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <AdminLayout>
@@ -168,11 +168,10 @@ export default function DashboardPage() {
                   </div>
                   <Badge
                     variant="secondary"
-                    className={`${
-                      stat.trend === 'up'
+                    className={`${stat.trend === 'up'
                         ? 'bg-success/10 text-success border-success/20'
                         : 'bg-destructive/10 text-destructive border-destructive/20'
-                    } border`}
+                      } border`}
                   >
                     {stat.trend === 'up' ? (
                       <ArrowUpRight className="mr-1 h-3 w-3" />

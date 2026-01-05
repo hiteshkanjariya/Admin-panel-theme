@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useThemeStore } from '@/stores/themeStore';
-import { useAuthStore } from '@/stores/authStore';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setSidebar } from '@/store/slices/themeSlice';
+import { logout } from '@/store/slices/authSlice';
 import { cn } from '@/lib/utils';
-import { 
-  Bell, 
-  Search, 
+import {
+  Bell,
+  Search,
   PanelLeftClose,
   PanelLeft,
-  User, 
-  Settings, 
+  User,
+  Settings,
   LogOut,
   UserPlus,
   Server,
@@ -78,19 +79,20 @@ const notifications = [
 ];
 
 export function TopNavbar() {
-  const { sidebar, setSidebar } = useThemeStore();
-  const { user, logout } = useAuthStore();
+  const dispatch = useAppDispatch();
+  const { sidebar } = useAppSelector((state) => state.theme);
+  const { user } = useAppSelector((state) => state.auth);
   const location = useLocation();
   const isCollapsed = sidebar === 'mini';
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     setShowLogoutDialog(false);
   };
 
   const toggleSidebar = () => {
-    setSidebar(isCollapsed ? 'full' : 'mini');
+    dispatch(setSidebar(isCollapsed ? 'full' : 'mini'));
   };
 
   const unreadCount = notifications.filter(n => n.unread).length;
@@ -326,7 +328,7 @@ export function TopNavbar() {
 
                 {/* Logout */}
                 <div className="p-2">
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => setShowLogoutDialog(true)}
                     className="flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10"
                   >
@@ -363,7 +365,7 @@ export function TopNavbar() {
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleLogout}
               className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

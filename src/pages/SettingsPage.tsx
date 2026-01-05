@@ -1,12 +1,18 @@
 import { AdminLayout } from '@/components/layout/AdminLayout';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  useThemeStore,
+  setMode,
+  setColor,
+  setContainer,
+  setSidebar,
+  setBorderRadius,
+  resetToDefaults,
   ThemeMode,
   ThemeColor,
   ContainerType,
   SidebarType,
   BorderRadius,
-} from '@/stores/themeStore';
+} from '@/store/slices/themeSlice';
 import { cn } from '@/lib/utils';
 import {
   Sun,
@@ -40,22 +46,11 @@ const borderRadiusOptions: { value: BorderRadius; label: string }[] = [
 ];
 
 export default function SettingsPage() {
-  const {
-    mode,
-    color,
-    container,
-    sidebar,
-    borderRadius,
-    setMode,
-    setColor,
-    setContainer,
-    setSidebar,
-    setBorderRadius,
-    resetToDefaults,
-  } = useThemeStore();
+  const dispatch = useAppDispatch();
+  const { mode, color, container, sidebar, borderRadius } = useAppSelector((state) => state.theme);
 
   const handleReset = () => {
-    resetToDefaults();
+    dispatch(resetToDefaults());
     toast.success('Settings reset to defaults');
   };
 
@@ -95,19 +90,19 @@ export default function SettingsPage() {
                   icon={Sun}
                   label="Light"
                   isActive={mode === 'light'}
-                  onClick={() => setMode('light')}
+                  onClick={() => dispatch(setMode('light'))}
                 />
                 <ThemeModeButton
                   icon={Moon}
                   label="Dark"
                   isActive={mode === 'dark'}
-                  onClick={() => setMode('dark')}
+                  onClick={() => dispatch(setMode('dark'))}
                 />
                 <ThemeModeButton
                   icon={Monitor}
                   label="System"
                   isActive={mode === 'system'}
-                  onClick={() => setMode('system')}
+                  onClick={() => dispatch(setMode('system'))}
                 />
               </div>
             </CardContent>
@@ -129,7 +124,7 @@ export default function SettingsPage() {
                 {themeColors.map((themeColor) => (
                   <button
                     key={themeColor.value}
-                    onClick={() => setColor(themeColor.value)}
+                    onClick={() => dispatch(setColor(themeColor.value))}
                     className={cn(
                       'group relative flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200',
                       themeColor.color,
@@ -165,13 +160,13 @@ export default function SettingsPage() {
                   icon={Maximize}
                   label="Full Width"
                   isActive={container === 'full'}
-                  onClick={() => setContainer('full')}
+                  onClick={() => dispatch(setContainer('full'))}
                 />
                 <ContainerButton
                   icon={Square}
                   label="Boxed"
                   isActive={container === 'boxed'}
-                  onClick={() => setContainer('boxed')}
+                  onClick={() => dispatch(setContainer('boxed'))}
                 />
               </div>
             </CardContent>
@@ -194,13 +189,13 @@ export default function SettingsPage() {
                   icon={PanelLeft}
                   label="Full Sidebar"
                   isActive={sidebar === 'full'}
-                  onClick={() => setSidebar('full')}
+                  onClick={() => dispatch(setSidebar('full'))}
                 />
                 <ContainerButton
                   icon={PanelLeftClose}
                   label="Mini Sidebar"
                   isActive={sidebar === 'mini'}
-                  onClick={() => setSidebar('mini')}
+                  onClick={() => dispatch(setSidebar('mini'))}
                 />
               </div>
             </CardContent>
@@ -223,7 +218,7 @@ export default function SettingsPage() {
                   {borderRadiusOptions.map((option) => (
                     <button
                       key={option.value}
-                      onClick={() => setBorderRadius(option.value)}
+                      onClick={() => dispatch(setBorderRadius(option.value))}
                       className={cn(
                         'flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all duration-200',
                         borderRadius === option.value

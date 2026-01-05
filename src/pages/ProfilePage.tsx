@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { useAuthStore } from '@/stores/authStore';
+import { useAppSelector } from '@/store/hooks';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -55,7 +55,7 @@ const mockProfileData = {
 };
 
 export default function ProfilePage() {
-  const { user } = useAuthStore();
+  const { user } = useAppSelector((state) => state.auth);
   const [isEditing, setIsEditing] = useState(false);
   const [notifications, setNotifications] = useState({
     email: true,

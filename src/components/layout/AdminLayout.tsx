@@ -1,4 +1,4 @@
-import { useThemeStore } from '@/stores/themeStore';
+import { useAppSelector } from '@/store/hooks';
 import { cn } from '@/lib/utils';
 import { AdminSidebar } from './AdminSidebar';
 import { TopNavbar } from './TopNavbar';
@@ -8,7 +8,7 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { sidebar, container } = useThemeStore();
+  const { sidebar, container } = useAppSelector((state) => state.theme);
   const isCollapsed = sidebar === 'mini';
 
   return (

@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthStore, UserRole } from '@/stores/authStore';
+import { useAppSelector } from '@/store/hooks';
+import { UserRole } from '@/store/slices/authSlice';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const location = useLocation();
 
   if (!isAuthenticated) {

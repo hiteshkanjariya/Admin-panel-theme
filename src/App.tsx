@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SettingsSheet } from "@/components/SettingsSheet";
-import { useAuthStore } from "@/stores/authStore";
+import { useAppSelector } from "@/store/hooks";
 
 // Pages
 import LoginPage from "@/pages/auth/LoginPage";
@@ -21,7 +21,7 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   return (
     <Routes>
@@ -81,7 +81,7 @@ function AppRoutes() {
 }
 
 const App = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   return (
     <QueryClientProvider client={queryClient}>

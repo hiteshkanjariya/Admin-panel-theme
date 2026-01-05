@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useThemeStore } from '@/stores/themeStore';
-import { useAuthStore } from '@/stores/authStore';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { logout } from '@/store/slices/authSlice';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -76,8 +76,9 @@ const navItems: NavItem[] = [
 
 export function AdminSidebar() {
   const location = useLocation();
-  const { sidebar } = useThemeStore();
-  const { user, logout } = useAuthStore();
+  const dispatch = useAppDispatch();
+  const { sidebar } = useAppSelector((state) => state.theme);
+  const { user } = useAppSelector((state) => state.auth);
   const isCollapsed = sidebar === 'mini';
   const [openGroups, setOpenGroups] = useState<string[]>(['Management', 'Reports']);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -91,7 +92,7 @@ export function AdminSidebar() {
   };
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     setShowLogoutDialog(false);
   };
 
@@ -336,7 +337,7 @@ export function AdminSidebar() {
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleLogout}
               className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

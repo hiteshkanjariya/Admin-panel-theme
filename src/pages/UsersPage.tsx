@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { useUserManagementStore, ManagedUser } from '@/stores/userManagementStore';
-import { useAuthStore, UserRole } from '@/stores/authStore';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { ManagedUser, fetchUsers, addUser, updateUser, deleteUser } from '@/store/slices/userManagementSlice';
+import { UserRole } from '@/store/slices/authSlice';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -81,8 +82,9 @@ const roleColors: Record<string, string> = {
 };
 
 export default function UsersPage() {
-  const { users, isLoading, fetchUsers, addUser, updateUser, deleteUser } = useUserManagementStore();
-  const { user: currentUser } = useAuthStore();
+  const dispatch = useAppDispatch();
+  const { users, isLoading } = useAppSelector((state) => state.userManagement);
+  const { user: currentUser } = useAppSelector((state) => state.auth);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -106,8 +108,8 @@ export default function UsersPage() {
   });
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
   // Filter users
   const filteredUsers = users.filter((user) => {
@@ -130,31 +132,31 @@ export default function UsersPage() {
   }, [searchQuery, statusFilter, roleFilter]);
 
   const onAddUser = async (data: UserFormData) => {
-    const result = await addUser({
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      status: data.status,
-    });
-    if (result.success) {
+    try {
+      await dispatch(addUser({
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        status: data.status,
+      })).unwrap();
       toast.success('User added successfully');
       setIsAddDialogOpen(false);
       reset();
-    } else {
-      toast.error(result.error || 'Failed to add user');
+    } catch (error) {
+      toast.error(error as string || 'Failed to add user');
     }
   };
 
   const onEditUser = async (data: UserFormData) => {
     if (!editingUser) return;
-    const result = await updateUser(editingUser.id, data);
-    if (result.success) {
+    try {
+      await dispatch(updateUser({ id: editingUser.id, updates: data })).unwrap();
       toast.success('User updated successfully');
       setIsEditDialogOpen(false);
       setEditingUser(null);
       reset();
-    } else {
-      toast.error(result.error || 'Failed to update user');
+    } catch (error) {
+      toast.error(error as string || 'Failed to update user');
     }
   };
 
@@ -168,19 +170,21 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (userId: string) => {
-    const result = await deleteUser(userId);
-    if (result.success) {
+    try {
+      await dispatch(deleteUser(userId)).unwrap();
       toast.success('User deleted successfully');
-    } else {
-      toast.error(result.error || 'Failed to delete user');
+    } catch (error) {
+      toast.error(error as string || 'Failed to delete user');
     }
   };
 
   const handleStatusToggle = async (user: ManagedUser) => {
     const newStatus = user.status === 'active' ? 'inactive' : 'active';
-    const result = await updateUser(user.id, { status: newStatus });
-    if (result.success) {
+    try {
+      await dispatch(updateUser({ id: user.id, updates: { status: newStatus } })).unwrap();
       toast.success(`User ${newStatus === 'active' ? 'activated' : 'deactivated'}`);
+    } catch (error) {
+      toast.error('Failed to update status');
     }
   };
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
+import { useAppDispatch } from '@/store/hooks';
+import { signUp } from '@/store/slices/authSlice';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +25,7 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const navigate = useNavigate();
-  const { signUp } = useAuthStore();
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -37,15 +38,14 @@ export default function SignUpPage() {
   });
 
   const onSubmit = async (data: SignUpFormData) => {
-    setIsLoading(true);
-    const result = await signUp(data.email, data.password, data.name);
-    setIsLoading(false);
-
-    if (result.success) {
+    try {
+      await dispatch(signUp({ email: data.email, password: data.password, name: data.name })).unwrap();
       toast.success('Account created successfully!');
       navigate('/dashboard');
-    } else {
-      toast.error(result.error || 'Sign up failed');
+    } catch (error) {
+      toast.error(error as string || 'Sign up failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 

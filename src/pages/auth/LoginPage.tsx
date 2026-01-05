@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
+import { useAppDispatch } from '@/store/hooks';
+import { login } from '@/store/slices/authSlice';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,7 +20,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -32,15 +33,14 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true);
-    const result = await login(data.email, data.password);
-    setIsLoading(false);
-
-    if (result.success) {
+    try {
+      const result = await dispatch(login({ email: data.email, password: data.password })).unwrap();
       toast.success('Welcome back!');
       navigate('/dashboard');
-    } else {
-      toast.error(result.error || 'Login failed');
+    } catch (error) {
+      toast.error(error as string || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
       {/* Animated Background */}
       <div className="fixed inset-0 mesh-gradient opacity-60" />
       <div className="fixed inset-0 noise-overlay" />
-      
+
       {/* Floating Orbs */}
       <div className="fixed top-20 left-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl animate-float" />
       <div className="fixed bottom-20 right-20 h-96 w-96 rounded-full bg-primary/15 blur-3xl animate-float-delayed" />
@@ -60,12 +60,12 @@ export default function LoginPage() {
         {/* Gradient overlay for left panel */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary to-primary/80" />
         <div className="absolute inset-0 noise-overlay opacity-50" />
-        
+
         {/* Decorative shapes */}
         <div className="absolute top-0 right-0 h-96 w-96 translate-x-1/2 -translate-y-1/2 rounded-full border border-primary-foreground/20 opacity-40" />
         <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-1/2 translate-y-1/2 rounded-full border border-primary-foreground/10 opacity-30" />
         <div className="absolute top-1/3 right-20 h-32 w-32 rounded-full bg-primary-foreground/10 blur-2xl animate-pulse-slow" />
-        
+
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-foreground/20 backdrop-blur-sm border border-primary-foreground/20 shadow-glow">
@@ -97,11 +97,11 @@ export default function LoginPage() {
           <p className="max-w-md text-lg text-primary-foreground/80 leading-relaxed">
             A powerful admin dashboard with complete user management, real-time analytics, and endless customization.
           </p>
-          
+
           {/* Feature pills */}
           <div className="flex flex-wrap gap-3">
             {['Analytics', 'User Management', 'Security', 'Customizable'].map((feature) => (
-              <span 
+              <span
                 key={feature}
                 className="rounded-lg bg-primary-foreground/10 px-3 py-1.5 text-sm text-primary-foreground border border-primary-foreground/10 backdrop-blur-sm"
               >
@@ -114,7 +114,7 @@ export default function LoginPage() {
         <div className="relative z-10 flex items-center gap-4">
           <div className="flex -space-x-2">
             {[1, 2, 3, 4].map((i) => (
-              <div 
+              <div
                 key={i}
                 className="h-8 w-8 rounded-full bg-primary-foreground/20 border-2 border-primary ring-2 ring-primary flex items-center justify-center text-xs font-medium text-primary-foreground"
               >
@@ -204,9 +204,9 @@ export default function LoginPage() {
                 )}
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 text-base font-semibold shadow-glow hover:shadow-glow-lg transition-all duration-300" 
+              <Button
+                type="submit"
+                className="w-full h-12 text-base font-semibold shadow-glow hover:shadow-glow-lg transition-all duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? (

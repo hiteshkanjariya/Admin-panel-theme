@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { useThemeStore, ThemeMode } from '@/stores/themeStore';
+import { useAppSelector } from '@/store/hooks';
+import { ThemeMode } from '@/store/slices/themeSlice';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const { mode, color, borderRadius } = useThemeStore();
+  const { mode, color, borderRadius } = useAppSelector((state) => state.theme);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -32,20 +33,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    
+
     // Remove all theme color classes
     root.classList.remove('theme-blue', 'theme-green', 'theme-purple', 'theme-orange', 'theme-red');
-    
+
     // Add current theme color class
     root.classList.add(`theme-${color}`);
   }, [color]);
 
   useEffect(() => {
     const root = document.documentElement;
-    
+
     // Remove all radius classes
     root.classList.remove('radius-0', 'radius-4', 'radius-7', 'radius-12');
-    
+
     // Add current radius class
     root.classList.add(`radius-${borderRadius}`);
   }, [borderRadius]);
